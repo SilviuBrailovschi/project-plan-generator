@@ -23,8 +23,8 @@ const App = () => {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Enter your input here"
-                rows={5}
-                cols={40}
+                rows={10}
+                cols={80}
                 style={{ marginBottom: "10px" }}
             />
             <button onClick={generateOutput}>Generate Output</button>
@@ -32,8 +32,8 @@ const App = () => {
                 value={outputText}
                 readOnly
                 placeholder="Generated output will appear here"
-                rows={50}
-                cols={40}
+                rows={25}
+                cols={80}
                 style={{ marginTop: "10px" }}
             />
         </div>
