@@ -3,3 +3,4 @@ uvicorn
 transformers
 python-dotenv
 torch
+python-dotenv
