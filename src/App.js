@@ -16,6 +16,15 @@ const App = () => {
             })
     };
 
+    const testServer = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/');
+            setOutputText(response.data.message);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
     return (
         <div className="page-wrapper">
             <h1>Model-Based Output Generator</h1>
@@ -28,6 +37,7 @@ const App = () => {
                 style={{ marginBottom: "10px" }}
             />
             <button onClick={generateOutput}>Generate Output</button>
+            <button onClick={testServer}>Test Server</button>
             <textarea
                 value={outputText}
                 readOnly

@@ -14,11 +14,11 @@ load_dotenv()
 app = FastAPI()
 
 # Log the value of HUGGINGFACE_TOKEN
-token_value = os.getenv("HUGGINGFACE_TOKEN")
+token_value = os.getenv("READ_TOKEN")
 if not token_value:
-    logging.error("HUGGINGFACE_TOKEN is not set in the environment.")
+    logging.error("READ_TOKEN is not set in the environment.")
 else:
-    logging.info(f"HUGGINGFACE_TOKEN value: {token_value}")
+    logging.info(f"READ_TOKEN value: {token_value}")
 
 # Configure CORS
 origins = [

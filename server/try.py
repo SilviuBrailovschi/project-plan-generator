@@ -1,15 +1,80 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
+import logging
+from transformers import pipeline
 
-tokenizer = AutoTokenizer.from_pretrained("OpenLLM-Ro/RoGemma-7b-Instruct")
-model = AutoModelForCausalLM.from_pretrained("OpenLLM-Ro/RoGemma-7b-Instruct",
-                                             config={"hidden_activation": "gelu_pytorch_tanh"})
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-instruction = "Ce jocuri de societate pot juca cu prietenii mei?"
-chat = [
-    {"role": "user", "content": instruction},
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Log the value of HUGGINGFACE_TOKEN
+token_value = os.getenv("READ_TOKEN")
+if not token_value:
+    logging.error("READ_TOKEN is not set in the environment.")
+else:
+    logging.info(f"READ_TOKEN value: {token_value}")
+
+# Configure CORS
+origins = [
+    "http://localhost:3000",  # React frontend
+    # Add other origins as needed
 ]
-prompt = tokenizer.apply_chat_template(chat, tokenize=False, system_message="")
 
-inputs = tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")
-outputs = model.generate(input_ids=inputs, max_new_tokens=128)
-print("raspuns:", tokenizer.decode(outputs[0]))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Initialize the text generation pipeline
+pipe = None
+try:
+    logging.info("Initializing the text generation pipeline...")
+    pipe = pipeline("text-generation", model="togethercomputer/RedPajama-INCITE-Chat-3B-v1")
+    logging.info("Pipeline initialized successfully.")
+except Exception as e:
+    logging.error(f"Failed to initialize pipeline: {e}")
+    raise
+
+# Endpoint to check server status
+@app.get("/")
+async def read_root():
+    return {"message": "Server is running"}
+
+# Define the model generation endpoint
+@app.post("/generate/")
+async def generate_text(request: Request):
+    if not pipe:
+        logging.error("Pipeline is not initialized.")
+        raise HTTPException(status_code=500, detail="Pipeline initialization failed.")
+
+    data = await request.json()
+    input_text = data.get("input_text")
+
+    if not input_text:
+        raise HTTPException(status_code=400, detail="Input text is required.")
+
+    # Log the received input text
+    logging.info(f"Received input text: {input_text}")
+
+    # Generate text using the pipeline
+    try:
+        generated_text = pipe(input_text, max_length=50, do_sample=True)[0]['generated_text']
+        logging.info(f"Generated text: {generated_text}")
+        return {"generated_text": generated_text}
+    except Exception as e:
+        logging.error(f"Text generation failed: {e}")
+        raise HTTPException(status_code=500, detail="Text generation failed")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001, reload=True)  # Changed port to 8001
