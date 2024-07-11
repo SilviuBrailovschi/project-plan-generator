@@ -5,20 +5,21 @@ import './App.css';
 const App = () => {
     const [inputText, setInputText] = useState("");
     const [outputText, setOutputText] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const generateOutput = async () => {
-
-            await axios.post("http://localhost:8000/generate", { input_text: inputText }).then( response => {
-                setOutputText(response.data.message);
-
-            }).catch(error => {
-                console.error("Error generating output:", error);
-            })
+        setLoading(true);
+        await axios.post("http://localhost:8001/generate", { input_text: inputText }).then( response => {
+            setOutputText(response.data.message);
+        }).catch(error => {
+            console.error("Error generating output:", error);
+        })
+        setLoading(false);
     };
 
     const testServer = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/');
+            const response = await axios.get('http://localhost:8001/');
             setOutputText(response.data.message);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -37,9 +38,10 @@ const App = () => {
                 style={{ marginBottom: "10px" }}
             />
             <button onClick={generateOutput}>Generate Output</button>
+            <br/>
             <button onClick={testServer}>Test Server</button>
             <textarea
-                value={outputText}
+                value={loading ? "Answering..." : outputText}
                 readOnly
                 placeholder="Generated output will appear here"
                 rows={25}

@@ -4,6 +4,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Client Setup
 
+### Prerequisites
+Make sure you have Node.js and npm installed locally. If not, install them from the following links:
+- [Node.js](https://nodejs.org/)
+- npm is included with Node.js installation.
+
 ### Installing Dependencies
 Install the required dependencies:
 
@@ -52,36 +57,6 @@ Make sure you have Python and pip installed locally. If not, install them from t
     ```bash
     pip install -r requirements.txt
     ```
-
-### Huggingface API Authentication
-
-1. Navigate to the server folder from the project root:
-    ```bash
-    cd server
-    ```
-2. Start a Jupyter notebook instance:
-    ```bash
-    jupyter notebook
-    ```
-3. In the Jupyter notebook interface, go to `Toolbar -> File -> New -> Console`.
-4. Paste the following code into the terminal input:
-    ```python
-    from getpass import getpass
-    from huggingface_hub import notebook_login
-
-    def login_with_token():
-        token = getpass("Token: ")
-        notebook_login(token=token)
-
-    login_with_token()
-    ```
-5. Execute the script by pressing `Shift + Enter`.
-6. Paste your token when prompted and click the login button.
-7. Verify authentication:
-    ```bash
-    huggingface-cli whoami
-    ```
-   You should see your Huggingface username as the output.
 
 ### Starting the Server
 
